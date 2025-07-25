@@ -113,7 +113,7 @@ class ImageTextService
 //            Log::info('addWatermark: start', compact('imagePath'));
             $imageWidth = $image->width();
 
-            $waterPatch = public_path('watermark/ru_converted.png');
+            $waterPatch = public_path('watermark/white_ru.png');
             $manager = new ImageManager(new GdDriver());
             $watermark = $manager->read($waterPatch);
 
@@ -150,7 +150,8 @@ class ImageTextService
             $image->text($caption, $x, $y, function (FontFactory $font) use ($fontSize) {
                 $font->filename(public_path('fonts/Roboto-Regular.ttf'));
                 $font->size($fontSize);
-                $font->color('#8C909B');
+                $font->color('#ffffff');
+                $font->stroke('8C909B', 1);
                 $font->align('left');
                 $font->valign('bottom');
             });

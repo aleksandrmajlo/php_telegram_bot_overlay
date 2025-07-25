@@ -48,6 +48,7 @@ class TelegramBotController extends Controller
             if (!empty($caption)) {
                 $textService = new ImageTextJostService();
                 $textService->addTextToImage($localPath, $caption);
+
                 $chatId = $data['message']['chat']['id'];
                 $botToken = config('services.telegram.bot_token');
                 Http::asMultipart()->post("https://api.telegram.org/bot{$botToken}/sendPhoto", [

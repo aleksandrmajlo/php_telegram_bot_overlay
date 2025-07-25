@@ -1,61 +1,103 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# @SimpleDemoBot - Telegram Bot на PHP
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Описание проекта
+@SimpleDemoBot — это Telegram-бот, разработанный на PHP с использованием Telegram Bot API. Он предназначен для демонстрации навыков создания интерактивных ботов, способных автоматизировать задачи, обрабатывать пользовательские запросы и интегрироваться с внешними системами. Бот подходит как для личных, так и для бизнес-проектов, обеспечивая удобное взаимодействие с пользователями через команды и интерактивные меню.
 
-## About Laravel
+## Основные функции
+- **Обработка команд**: Поддержка команд `/start`, `/help`, `/about` для взаимодействия с пользователями.
+- **Интерактивное меню**: Пользовательская клавиатура с опциями ("О боте", "Услуги", "Контакты").
+- **Вебхуки**: Эффективная обработка сообщений в реальном времени через вебхуки.
+- **Управление состоянием**: Отслеживание контекста для многоэтапных процессов (например, оформление заказов).
+- **Логирование**: Запись взаимодействий для отладки и мониторинга.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Технические детали
+- **Язык программирования**: PHP 8.2+
+- **Библиотека**: `telegram-bot-sdk` для упрощенной работы с Telegram Bot API
+- **Хостинг**: Требуется сервер с поддержкой HTTPS и SSL-сертификатом (например, Let’s Encrypt)
+- **База данных**: Опционально MySQL для хранения логов или пользовательских данных
+- **Основные методы**: `setWebhook`, `sendMessage`, `reply_markup` для создания меню
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## Пример кода
+Ниже приведен упрощенный код на PHP, демонстрирующий настройку вебхука и обработку команд с использованием библиотеки `telegram-bot-sdk`.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+```php
+<?php
+require 'vendor/autoload.php';
+use TelegramBot\Api\Client;
+use TelegramBot\Api\Types\Update;
 
-## Learning Laravel
+$token = 'YOUR_BOT_TOKEN'; // Замените на токен от BotFather
+$bot = new Client($token);
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+// Настройка вебхука
+$webhookUrl = 'https://yourdomain.com/bot/webhook.php';
+$bot->setWebhook($webhookUrl);
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+// Обработка команды /start
+$bot->command('start', function ($message) use ($bot) {
+    $chatId = $message->getChat()->getId();
+    $welcomeMessage = "Добро пожаловать в @SimpleDemoBot! Используйте меню ниже.";
+    
+    $keyboard = [
+        [['text' => 'О боте', 'callback_data' => '/about']],
+        [['text' => 'Услуги', 'callback_data' => '/services']],
+        [['text' => 'Контакты', 'callback_data' => '/contact']]
+    ];
+    $replyMarkup = json_encode(['inline_keyboard' => $keyboard]);
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+    $bot->sendMessage($chatId, $welcomeMessage, 'HTML', false, null, $replyMarkup);
+});
 
-## Laravel Sponsors
+// Обработка команды /about
+$bot->command('about', function ($message) use ($bot) {
+    $chatId = $message->getChat()->getId();
+    $bot->sendMessage($chatId, "Это демонстрационный бот на PHP для Telegram.");
+});
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+// Логирование сообщений
+$bot->on(function (Update $update) {
+    $data = $update->toJson();
+    file_put_contents(__DIR__ . '/logs/message.txt', date('Y-m-d H:i:s') . " $data\n", FILE_APPEND);
+}, function () { return true; });
 
-### Premium Partners
+$bot->run();
+```
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## Установка и настройка
+1. **Создание бота**:
+   - Зарегистрируйте бота через `@BotFather` в Telegram и получите токен.
+2. **Настройка вебхука**:
+   - Разверните HTTPS-сервер и настройте вебхук с помощью метода `setWebhook`.
+3. **Установка зависимостей**:
+   - Установите библиотеку `telegram-bot-sdk` через Composer:
+     ```bash
+     composer require irazasyed/telegram-bot-sdk
+     ```
+4. **Развертывание**:
+   - Загрузите PHP-скрипт на сервер, убедитесь, что URL вебхука доступен.
+5. **Тестирование**:
+   - Проверьте работу бота, отправив команды в Telegram.
 
-## Contributing
+## Применение
+- **Бизнес**: Автоматизация обработки запросов клиентов, уведомления, оформление заказов.
+- **Личные проекты**: Создание ботов для напоминаний, информационных запросов или развлечений.
+- **Интеграции**: Подключение к CRM, базам данных или внешним API для расширения функционала.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Преимущества
+- **Масштабируемость**: Модульная структура для добавления новых функций.
+- **Надежность**: Вебхуки обеспечивают быструю обработку запросов.
+- **Удобство для пользователей**: Интуитивно понятные клавиатуры для навигации.
 
-## Code of Conduct
+## Ресурсы
+- **Репозиторий**: []
+- **Демо**: Попробуйте @SimpleDemoBot в Telegram
+- **Документация**: [Telegram Bot API](https://core.telegram.org/bots/api)
+- **Контакты**: [Ваши контакты для связи]
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Планы по улучшению
+- Интеграция с базой данных для хранения пользовательских данных.
+- Поддержка инлайн-запросов для динамического контента.
+- Добавление ИИ-ответов через внешние API.
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Лицензия
+MIT License. Подробности см. в файле `LICENSE`.
