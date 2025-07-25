@@ -89,7 +89,7 @@ $bot->run();
 - **Удобство для пользователей**: Интуитивно понятные клавиатуры для навигации.
 
 ## Ресурсы
-- **Репозиторий**: []
+- **Репозиторий**: [https://github.com/aleksandrmajlo/php_telegram_bot_overlay]
 - **Демо**: Попробуйте @SimpleDemoBot в Telegram
 - **Документация**: [Telegram Bot API](https://core.telegram.org/bots/api)
 - **Контакты**: [Ваши контакты для связи]
